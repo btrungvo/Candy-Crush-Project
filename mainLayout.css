@@ -3,27 +3,46 @@
  */
 
 /* REMOVE ME - dashed lines and height for debugging */
-#mainColumn {
+#mainColumn 
+{
     margin-top: 10px;
 }
-#firstColumn {
-  color: red;    
+#firstColumn 
+{
+    color: red;    
 }
 
-#lastColumn{
+#lastColumn
+{
 }
-
-.newGameBtn {
-  background-color: lightgrey;
-  color: black;
-}
-table{
+table
+{
     table-layout: fixed;
 }
-tr, td {
+tr, td 
+{
     text-align: center;
     border: 0.2px solid #D3D3D3;
     border-collapse: collapse;
 }
-
+.btn:disabled 
+{
+    background-color: lightgrey;
+    color: grey;
+}
+.btn 
+{
+    background-color: forestgreen;
+    color: black;
+}
+#newGame 
+{
+    background-color: lightgrey;
+    color: black;
+}
+#crushBtn
+{
+    background-color: lightgrey;
+    color: black;
+}
 /* Your css code here! */
