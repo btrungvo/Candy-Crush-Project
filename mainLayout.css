@@ -1,0 +1,29 @@
+/* Copyright (c) 2017 MIT 6.813/6.831 course staff, all rights reserved.
+ * Redistribution of original or derived work requires permission of course staff.
+ */
+
+/* REMOVE ME - dashed lines and height for debugging */
+#mainColumn {
+    margin-top: 10px;
+}
+#firstColumn {
+  color: red;    
+}
+
+#lastColumn{
+}
+
+.newGameBtn {
+  background-color: lightgrey;
+  color: black;
+}
+table{
+    table-layout: fixed;
+}
+tr, td {
+    text-align: center;
+    border: 0.2px solid #D3D3D3;
+    border-collapse: collapse;
+}
+
+/* Your css code here! */
