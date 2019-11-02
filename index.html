@@ -25,7 +25,7 @@ Collaborators:Discussed the assignment with nobody
 <meta name="viewport" content=
   "width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<!-- Load any supplemental Javascript libraries here <script src="candytable.js"></script> -->
+<!-- Load any supplemental Javascript libraries here -->
 <script src=
   "https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src=
@@ -68,10 +68,8 @@ var DEFAULT_BOARD_SIZE = 8;
 // data model at global scope for easier debugging
 var board;
 var rules;
-var colname = ["a","b","c","d","e","f","g","h"];
-var boxvalue;
-var validInput=false;
-var globalCrushCounter = true;
+var letterarray = ["a","b","c","d","e","f","g","h"];
+var validmove = false;
 
 // initialize board
 if ($.getUrlVar('size') && $.getUrlVar('size') >= 3) {
@@ -126,7 +124,6 @@ function letter(col)
     return letterarray[col];
 }
 
-
 function drawboard() 
 {
     var drawTable = "<table id='candytable' width='320' height='320' align='center'>";
@@ -151,187 +148,168 @@ function drawboard()
 }
     
 // Button Events
+function resetBoard()
+{
+    for (var row = 0; row < board.boardSize; row++)
+    {
+        for (var col = 0; col < board.boardSize; col++)
+        {
+          board.removeAt(row, col);
+        
+        }
+    }
+}
+function resetarrow() 
+{
+    document.getElementById('left').disabled = true;
+    document.getElementById('right').disabled = true;
+    document.getElementById('up').disabled = true;
+    document.getElementById('down').disabled = true;
+}
 $(document).on('click', "#newGame", function(evt)
 {
-    rules.cleanBoard();
+    resetBoard();
+    resetarrow();
     rules.prepareNewGame();
+    document.getElementById('moveBox').focus();
     $("#mainColumn").html(drawboard());
     // Your code here.
 });
-function flipAndDraw(currCandy, dir)
+$(document).keypress(function(evt)
 {
-    board.flipCandies(currCandy, board.getCandyInDirection(currCandy, dir));
-  
-    // ctxt.clearRect(0, 0, canvas.width, canvas.height);
-    $("#mainColumn").html(drawBoard());
-    
-      
-    document.getElementById('inputBox').value = null;
-    document.getElementById('inputBox').focus();
-    validInput = false;
-    document.getElementById('up').disabled = true;
-    document.getElementById('left').disabled = true;
-    document.getElementById('right').disabled = true;
-    document.getElementById('down').disabled = true;
-    document.getElementById('crusher').disabled = false;
-    document.getElementById('inputBox').disabled = true;
-    document.getElementById('Canvas').style.pointerEvents = 'none';
-    document.getElementById('helpBtn').disabled = true;
- 
-    var counter = true;
-    crushcrush();
-
-  var gg = setInterval(function(){
-    // console.log(counter);
-    if(globalCrushCounter == true){
-      // console.log(globalCrushCounter);
-      crushcrush();
-    }
-    else{
-      clearInterval(gg);
-      document.getElementById('Canvas').style.pointerEvents = 'auto';
-      document.getElementById('helpBtn').disabled = false;
-
-    }
-  },1100);
-}
-function avaliableMove(dir)
+    if(evt.which == 13)
     {
-        var inputCol = col_array.indexOf(inputBoxInfo.charAt(0));
-        var inputRow;
-        if(inputBoxInfo.length < 3)
-            inputRow = Number(inputBoxInfo.charAt(1))-1;
-        else {
-            var temp = inputBoxInfo.charAt(1) + inputBoxInfo.charAt(2);
-            inputRow = Number(temp) -1;
-        }
-        var currCandy = board.getCandyAt(inputRow, inputCol);
-        var bool = rules.isMoveTypeValid(currCandy,dir);
-        return bool;
+        resetarrow();
+        check();
     }
-function checkMove(dir)
+});
+function check()
+{
+    moveBoxValue = document.getElementById('moveBox').value;
+    if(moveBoxValue.length <= 2)
     {
-var inputCol = col_array.indexOf(inputBoxInfo.charAt(0));
-var inputRow;
-if(inputBoxInfo.length < 3)
-inputRow = Number(inputBoxInfo.charAt(1))-1;
-else {
-    var temp = inputBoxInfo.charAt(1) + inputBoxInfo.charAt(2);
-    inputRow = Number(temp) -1;
-    }
-}
-function checkInput(){
-    inputBoxInfo = document.getElementById('inputBox').value;
-    if(inputBoxInfo.length <= 3){
-      var bool1 = col_array.indexOf(inputBoxInfo.charAt(0)) != -1;
-      var bool2 = (Number(inputBoxInfo.charAt(1))>0 && Number(inputBoxInfo.charAt(1))<=20);
-      if(bool1 && bool2){
-        validInput = true;
-        var counter = 0;
-        if(avaliableMove('up')) {
-          document.getElementById('up').disabled = false;
-          counter++;
-        }
-        if(avaliableMove('left')) {
-          document.getElementById('left').disabled = false;
-          counter++;
-        }
-        if(avaliableMove('right')) {
-          document.getElementById('right').disabled = false;
-          counter++;
-        }
-        if(avaliableMove('down')) {
-          document.getElementById('down').disabled = false;
-          counter++;
-        }
-        if(counter>0)
-          return;
+        var rowcheck = (Number(moveBoxValue.charAt(1))>0 && Number(moveBoxValue.charAt(1))<9);
+        var colcheck = letterarray.indexOf(moveBoxValue.charAt(0));
+        if(rowcheck && colcheck)
+        {
+            validmove = true;
+            var checking = false;
+            if(ismovevalid('up')) 
+            {
+                document.getElementById('up').disabled = false;
+                checking=true;
+            }
+            if(ismovevalid('left')) 
+            {
+                document.getElementById('left').disabled = false;
+                checking=true;
+            }
+            if(ismovevalid('right')) 
+            {
+                document.getElementById('right').disabled = false;
+                checking=true;
+            }
+            if(ismovevalid('down')) 
+            {
+                document.getElementById('down').disabled = false;
+                checking=true;
+            }
+            if(checking)
+                return;
       }
     }
-    document.getElementById('inputBox').value = null;
-    document.getElementById('inputBox').focus();
+    document.getElementById('moveBox').value = null;
+    document.getElementById('moveBox').focus();
+
+}
+function ismovevalid(direction)
+{
+    var colValue = letterarray.indexOf(moveBoxValue.charAt(0));
+    var rowValue =Number(moveBoxValue.charAt(1))-1;
+    var fromCandy = board.getCandyAt(rowValue, colValue);
+    var valid = rules.isMoveTypeValid(fromCandy,direction);
+    return valid;
+}
+$(document).on('click', "#up", function(evt)
+{
+    if(validmove)
+        {
+            document.getElementById('moveBox').focus();
+            flip('up');
+        }
+});
+
+$(document).on('click', "#left", function(evt)
+{
+    if(validmove)
+        {
+            document.getElementById('moveBox').focus();
+            flip('left');
+        }
+});
+
+$(document).on('click', "#right", function(evt)
+{
+    if(validmove) 
+        {
+            document.getElementById('moveBox').focus();
+            flip('right');
+        }
+});
+
+$(document).on('click', "#down", function(evt)
+{
+    if(validmove) 
+        {
+            flip('down');
+            document.getElementById('moveBox').focus();
+        }
+});
+function flip(direction)
+{
+    var colValue = letterarray.indexOf(moveBoxValue.charAt(0));
+    var rowValue =Number(moveBoxValue.charAt(1))-1;
+    var fromcandy= board.getCandyAt(rowValue,colValue);
+    flipthecandy(fromcandy, direction);
+}
+function flipthecandy(fromcandy, direction)
+{
+    board.flipCandies(fromcandy, board.getCandyInDirection(fromcandy, direction));
+    $("#mainColumn").html(drawboard());
     document.getElementById('up').disabled = true;
     document.getElementById('left').disabled = true;
     document.getElementById('right').disabled = true;
     document.getElementById('down').disabled = true;
-}
-function clearMoves() 
-{
-  document.getElementById('left').disabled = true;
-  document.getElementById('right').disabled = true;
-  document.getElementById('up').disabled = true;
-  document.getElementById('down').disabled = true;
-}
-$(document).on('click', "#candytable", function(evt) 
-{
-    var location = getCanvasPos(evt);
-    clearMoves();
-    $("#mainColumn").html(drawboard());
-    document.getElementById('inputBox').value = location;
-    checkInput(); //Once click it will check for possible moves
-});
-$(document).on('click', "#crushBtn", function(evt){
-var listRemove = rules.getCandyCrushes();
-var candy = listRemove[0][0];
-var colorChange = 'style=background-color:' + candy;
-switch(colorChange){
-case 'style=background-color:red':
-document.getElementById('score').style.backgroundColor = 'red';
-break;
-case 'style=background-color:green':
-document.getElementById('score').style.backgroundColor = 'green';
- break;
-case 'style=background-color:blue':
-document.getElementById('score').style.backgroundColor = 'blue';
-break;
-case 'style=background-color:orange':
-document.getElementById('score').style.backgroundColor = 'orange';
-break;
-case 'style=background-color:purple':
-document.getElementById('score').style.backgroundColor = 'purple';
-break;
-case 'style=background-color:yellow':
-document.getElementById('score').style.backgroundColor = 'yellow';
-break;
-}
-rules.removeCrushes(listRemove);
-    
-$("#mainColumn").html(drawboard());
-   
-setTimeout(function(){ 
-rules.moveCandiesDown();
-$("#mainColumn").html(drawboard());
-listRemove = rules.getCandyCrushes();
-if(listRemove.length == 0) {
-document.getElementById('crushBtn').disabled = true;
-document.getElementById('inputBox').disabled = false;
-document.getElementById('inputBox').focus();
-}
-else
-document.getElementById('inputBox').disabled = true;
-}, 500);
-    
-});
-function getAllCandy(crushList)
-{
-    var candies = [];
-    for(var i=0; i<crushList.length; i++)
-        {
-        for(var j=0; j<crushList[i].length; j++)
-            {
-            }
-        }
+    document.getElementById('crushBtn').disabled = false;
+    document.getElementById('moveBox').value = null;
+    document.getElementById('moveBox').disabled = true;
 }
 
+$(document).on('click', "#crushBtn", function(evt)
+{
+    var setOfSetsOfCrushes = rules.getCandyCrushes();
+    rules.removeCrushes(setOfSetsOfCrushes);
+    setTimeout(function()
+    { 
+        rules.moveCandiesDown();
+        $("#mainColumn").html(drawboard());
+        setOfSetsOfCrushes = rules.getCandyCrushes();
+        if(setOfSetsOfCrushes.length == 0) 
+        {
+            document.getElementById('crushBtn').disabled = true;
+            document.getElementById('moveBox').disabled = false;
+            document.getElementById('moveBox').focus();
+        }
+        else
+            document.getElementById('moveBox').disabled = true;
+    }, 500);
+    
+    });
 // keyboard events arrive here
 $(document).on('keydown', function(evt) {
   // Your code here.
 });
-$(document).keypress(function(evt){
-  if(evt.which == 13){
-    checkInput();
-  }
-});
+
 
 </script>
 
@@ -344,105 +322,19 @@ $(document).keypress(function(evt){
   <div class="row">
     <div class="col-md-2 align-self-center" id="firstColumn">
       <div>
-      <!-- Column 1 Code Here -->
           <div class="p-2"><h1 class="text-center"><b>Candy Crush</b></h1></div>
           <div class="p-2 text-center"><button class="btn" id="newGame">New Game</button></div>
       </div>
-  </div>
-
+    </div>
     <div class="col-md-6 align-self-center" id="mainColumn">
-    <script > rules.prepareNewGame();</script>
-      <!-- Column 2 Code Here -->
-  <!--      <table width="320" height="320" align="center">
-            <tr>
-                <td>a1</td>
-                <td>b1</td>
-                <td>c1</td>
-                <td>d1</td>
-                <td>e1</td>
-                <td>f1</td>
-                <td>g1</td>
-                <td>h1</td>
-            </tr>
-            <tr>
-                <td>a2</td>
-                <td>b2</td>
-                <td>c2</td>
-                <td>d2</td>
-                <td>e2</td>
-                <td>f2</td>
-                <td>g2</td>
-                <td>h2</td>
-            </tr>
-            <tr>
-                <td>a3</td>
-                <td>b3</td>
-                <td>c3</td>
-                <td>d3</td>
-                <td>e3</td>
-                <td>f3</td>
-                <td>g3</td>
-                <td>h3</td>
-            </tr>
-            <tr>
-                <td>a4</td>
-                <td>b4</td>
-                <td>c4</td>
-                <td>d4</td>
-                <td>e4</td>
-                <td>f4</td>
-                <td>g4</td>
-                <td>h4</td>
-            </tr>
-            <tr>
-                <td>a5</td>
-                <td>b5</td>
-                <td>c5</td>
-                <td>d5</td>
-                <td>e5</td>
-                <td>f5</td>
-                <td>g5</td>
-                <td>h5</td>
-            </tr>
-            <tr>
-                <td>a6</td>
-                <td>b6</td>
-                <td>c6</td>
-                <td>d6</td>
-                <td>e6</td>
-                <td>f6</td>
-                <td>g6</td>
-                <td>h6</td>
-            </tr>
-            <tr>
-                <td>a7</td>
-                <td>b7</td>
-                <td>c7</td>
-                <td>d7</td>
-                <td>e7</td>
-                <td>f7</td>
-                <td>g7</td>
-                <td>h7</td>
-            </tr>
-            <tr>
-                <td>a8</td>
-                <td>b8</td>
-                <td>c8</td>
-                <td>d8</td>
-                <td>e8</td>
-                <td>f8</td>
-                <td>g8</td>
-                <td>h8</td>
-            </tr>
-        </table> -->
+        <script > rules.prepareNewGame();</script>
         <script>$("#mainColumn").html(drawboard());</script>
-        <script>board.resetScore();</script>
     </div>
 
     <div class="col-md-3 align-self-center" id="lastColumn">
       <div class="p-2 text-center">
         <h2 class="" style="display:inline-block">Move:</h2>
-        <input type="text" id="inputBox" style="width: 40px;display:inline-block;">
+        <input type="text" id="moveBox" style="width: 40px;display:inline-block;">
       </div>
       <div class="p-1 text-center" > 
         <button class="btn btnColor" id="up" style="margin-bottom: -5px;" disabled>&uarr;</button> 
@@ -456,7 +348,7 @@ $(document).keypress(function(evt){
         <button class="btn btnColor" id="down" style="margin-top: -5px;" disabled>&darr;</button>
       </div>
       <div class="p-1 text-center">
-        <button class="btn btnColor"id="crushBtn">Crush Once</button>
+        <button class="btn btnColor"id="crushBtn" disabled>Crush Once</button>
       </div>
     </div>
   </div> <!-- class="row" -->
